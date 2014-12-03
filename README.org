@@ -1,6 +1,6 @@
 * Fastfea: C++11 based feature engineering framework
-Build blocks:
-- Transformer
+Building blocks:
+- Transformer: Input -> Output.
 - Pipeline: Two transformers in sequence, pipeline itself is a transformer.
 - Combiner: Two transformers in parallel, combiner itself is a
   transformer.
@@ -32,10 +32,19 @@ to:
 A + B
 #+end_src
 
+The type of first transformer's output should match that of the
+second's input.
+
 ** Combiner
-Two transformers in parallel, they are used with pipeline. For
-example, let's say you want to binarize (transformer C) according to the combination
-of two-features (transformer A and B) (e.g. 2-gram).
+Two transformers in parallel, the two's output will be combined. They
+have to have same input and output types. in =transformer.hpp= we
+already implemented combine function for =std::vector= and
+=std::string=. To combine other output types, we need to implement a
+combine function.
+
+Combiner works well with pipeline. For example, let's say you want to
+binarize (transformer C) according to the combination of two-features
+(transformer A and B) (e.g. 2-gram).
 
 We overloaded =|=. So one just needs to:
 
