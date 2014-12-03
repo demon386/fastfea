@@ -1,0 +1,51 @@
+* Fastfea: C++11 based feature engineering framework
+Build blocks:
+- Transformer
+- Pipeline: Two transformers in sequence, pipeline itself is a transformer.
+- Combiner: Two transformers in parallel, combiner itself is a
+  transformer.
+
+** Transformer
+Transformer is a mathematical function. (From something to another
+thing). Yet the transformer has to learn from data to decide its
+parameters. The process of learning is done in =step= by continuously
+observing samples.
+
+For example, to scale a numerical feature (linearly to 0-1), the
+transformer has to know the lower bound (min) and upper bound (max) of
+the given feature. In the process of =step=, this transformer will
+update its parameter according to each sample.
+
+After observing all samples in =step=, =finalize= should be called to
+do some (possible) finishing works.
+
+** Pipeline
+Two transformers in sequence, for example:
+- Transformer A categorizes a feature
+- Transformer B binarize (1-of-K binary encoding) of a categorical
+  variable.
+
+To make a pipeline out of them, we overloaded =+=. So one just needs
+to:
+
+#+begin_src
+A + B
+#+end_src
+
+** Combiner
+Two transformers in parallel, they are used with pipeline. For
+example, let's say you want to binarize (transformer C) according to the combination
+of two-features (transformer A and B) (e.g. 2-gram).
+
+We overloaded =|=. So one just needs to:
+
+#+begin_src
+(A | B) + C
+#+end_src
+
+
+** Lazy Transformer
+=LazyTransformer= exists to simplify a particular kind of
+transformer. They don't need to learn parameters, so =step= and
+=finalize= are useless for them. Examples include literally taking
+some features, taking =Log= for a given feature.
