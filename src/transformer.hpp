@@ -220,7 +220,7 @@ std::shared_ptr<Transformer<From, To>> operator|(
 }
 
 template<class T, class... Args>
-std::shared_ptr<typename T::BaseType> make_transformers(Args&&... args) {
+std::shared_ptr<typename T::BaseType> make_transformer(Args&&... args) {
     return std::make_shared<T>(std::forward<Args>(args)...);
 }
 
