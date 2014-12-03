@@ -13,7 +13,6 @@ struct Data {
 
 int main(int argc, char *argv[])
 {
-    // Let's do
     std::function<std::string(const Data& sample)> get_firstname_lambda =
         [](const Data& sample) -> std::string {
             return sample.firstname;

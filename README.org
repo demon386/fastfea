@@ -7,7 +7,7 @@ Build blocks:
 
 ** Transformer
 Transformer is a mathematical function. (From something to another
-thing). Yet the transformer has to learn from data to decide its
+thing). Yet the transformer (may) has to learn from data to decide its
 parameters. The process of learning is done in =step= by continuously
 observing samples.
 
