@@ -38,9 +38,9 @@ second's input.
 ** Combiner
 Two transformers in parallel, the two's output will be combined. They
 have to have same input and output types. in =transformer.hpp= we
-already implemented combine function for =std::vector= and
-=std::string=. To combine other output types, we need to implement a
-combine function.
+already implemented combine functions for =std::vector= and
+=std::string=. To combine other output types, you need to implement a
+new combine function.
 
 Combiner works well with pipeline. For example, let's say you want to
 binarize (transformer C) according to the combination of two-features
