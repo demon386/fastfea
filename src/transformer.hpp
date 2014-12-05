@@ -107,7 +107,11 @@ public:
     Pipeline(const std::shared_ptr<Transformer<From, Middle>> first,
             const std::shared_ptr<Transformer<Middle, To>> second):
             _first(first), _second(second) {
-        this->_is_finalized = false;
+        if (_first->is_finalized() && _second->is_finalized()) {
+            this->_is_finalized = true;
+        } else {
+            this->_is_finalized = false;
+        }
     }
 
     virtual void step(const From& sample) {
