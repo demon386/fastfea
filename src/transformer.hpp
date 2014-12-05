@@ -22,6 +22,8 @@
 #include <unordered_map>
 #include <memory>
 
+#include "hasher.hpp"
+
 namespace transformer {
 
 template<class From, class To>
@@ -149,34 +151,48 @@ private:
     std::vector<From> _data;
 };
 
-template<typename T>
-std::vector<T> combine(std::vector<T>&& first_out,
-        std::vector<T>&& second_out) {
-    std::vector<T> out(std::move(first_out));
-    out.insert(out.end(), std::move(second_out).begin(),
-        std::move(second_out).end());
-    return out;
+
+template<typename T1, typename T2>
+std::tuple<T1, T2> combine(T1&& first_out, T2&& second_out) {
+    return std::make_tuple(std::move(first_out), std::move(second_out));
 }
 
-std::string combine(std::string&& first_out,
-    std::string&& second_out) {
-    return first_out + second_out;
+template<class... Args, class T2>
+auto combine(std::tuple<Args...>&& first, T2&& second) ->
+        decltype(std::tuple_cat(first, std::make_tuple(second))) {
+    return std::tuple_cat(std::move(first), std::make_tuple(std::move(second)));
 }
 
+template<class T1, class... Args>
+auto combine(T1&& first, std::tuple<Args...>&& second) ->
+        decltype(std::tuple_cat(std::make_tuple(first), second)) {
+    return std::tuple_cat(std::make_tuple(std::move(first)),
+            std::move(second));
+}
 
-
+template<class... Args1, class... Args2>
+auto combine(std::tuple<Args1...>&& first,
+        std::tuple<Args2...>&& second) ->
+        decltype(std::tuple_cat(first, second)) {
+    return std::tuple_cat(std::move(first),
+            std::move(second));
+}
 
 // Combiner, by itself, just call two transformer in sequence with the same
 // input.
 // It's useless as standalone, but can combine with pipeline to provide
 // powerful abstraction.
-template<typename From, typename To>
-class Combiner : public Transformer<From, To> {
-    using TransformerT = Transformer<From, To>;
+template<typename From, typename To1, typename To2>
+class Combiner : public Transformer<From, decltype(combine(To1(),
+            To2()))> {
+    using Transformer1T = Transformer<From, To1>;
+    using Transformer2T = Transformer<From, To2>;
+    using CombineT = decltype(combine(To1(), To2()));
+    using TransformerCombineT = Transformer<From, CombineT>;
 public:
-    Combiner(const std::shared_ptr<TransformerT> first,
-            const std::shared_ptr<TransformerT> second) :
-            _first(first), _second(second) {
+    Combiner(const std::shared_ptr<Transformer1T> first,
+            const std::shared_ptr<Transformer2T> second) :
+            _first(std::move(first)), _second(std::move(second)) {
         this->_is_finalized = false;
     }
 
@@ -199,14 +215,14 @@ public:
         this->_is_finalized = true;
     }
 
-    virtual To transform(const From& sample) const {
+    virtual CombineT transform(const From& sample) const {
         return combine(_first->transform(sample),
             _second->transform(sample));
     }
 
 private:
-    std::shared_ptr<TransformerT> _first;
-    std::shared_ptr<TransformerT> _second;
+    std::shared_ptr<Transformer1T> _first;
+    std::shared_ptr<Transformer2T> _second;
 };
 
 template<typename From, typename Middle, typename To>
@@ -216,11 +232,13 @@ std::shared_ptr<Transformer<From, To>> operator+(
     return std::shared_ptr<Transformer<From, To>>(new Pipeline<From, Middle, To>(first, second));
 }
 
-template<typename From, typename To>
-std::shared_ptr<Transformer<From, To>> operator|(
-        std::shared_ptr<Transformer<From, To>> first,
-        std::shared_ptr<Transformer<From, To>> second) {
-    return std::shared_ptr<Transformer<From, To>>(new Combiner<From, To>(first, second));
+template<typename From, typename To1, typename To2>
+std::shared_ptr<Transformer<From,
+    decltype(combine(To1(), To2()))>> operator|(
+        std::shared_ptr<Transformer<From, To1>> first,
+        std::shared_ptr<Transformer<From, To2>> second) {
+    using CombineT = decltype(combine(To1(), To2()));
+    return std::shared_ptr<Transformer<From, CombineT>>(new Combiner<From, To1, To2>(first, second));
 }
 
 template<class T, class... Args>

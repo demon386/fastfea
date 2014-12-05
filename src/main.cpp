@@ -24,7 +24,7 @@ int main(int argc, char *argv[])
 
     auto get_firstname = make_lazy_transformer(get_firstname_lambda);
     auto get_lastname = make_lazy_transformer(get_lastname_lambda);
-    auto binarizer = make_transformer<Binarizer<std::string>>();
+    auto binarizer = make_transformer<Binarizer<std::tuple<std::string, std::string>>>();
 
     Data data1{"Mike", "Jordan"};
     Data data2{"Mike", "James"};
