@@ -1,4 +1,10 @@
 * Fastfea: C++11 based feature engineering framework
+** Build
+#+begin_src
+mkdir build && cd build && cmake .. && make
+#+end_src
+
+** Concepts
 Building blocks:
 - Transformer: Input -> Output.
 - Pipeline: Two transformers in sequence, pipeline itself is a transformer.
