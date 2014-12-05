@@ -19,3 +19,6 @@
 *.exe
 *.out
 *.app
+build_linux/
+build_osx/
+build/
