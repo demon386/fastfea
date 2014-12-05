@@ -23,6 +23,10 @@
 #include <memory>
 
 namespace transformer {
+
+template<class From, class To>
+using TransformFunc = std::function<To(const From& sampl)>;
+
 template<typename From, typename To>
 class Transformer {
 public:
