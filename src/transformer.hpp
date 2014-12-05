@@ -183,6 +183,15 @@ auto combine(std::tuple<Args1...>&& first,
             std::move(second));
 }
 
+template<typename T>
+std::vector<T> combine(std::vector<T>&& first_out,
+        std::vector<T>&& second_out) {
+    std::vector<T> out(std::move(first_out));
+    out.insert(out.end(), std::move(second_out).begin(),
+        std::move(second_out).end());
+    return out;
+}
+
 // Combiner, by itself, just call two transformer in sequence with the same
 // input.
 // It's useless as standalone, but can combine with pipeline to provide

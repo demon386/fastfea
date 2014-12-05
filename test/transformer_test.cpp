@@ -95,3 +95,16 @@ TEST(combiner, three_and_four_combiners) {
     EXPECT_EQ("Jordan", std::get<2>(out4));
     EXPECT_EQ("Michael", std::get<3>(out4));
 }
+
+TEST(combiner, combine_vector) {
+    // Specal rule:
+    //
+    // when two outputs are of std::vector type, combine them as
+    // one std::vector, rather than std::tuple
+    std::vector<int> v1 = {1};
+    std::vector<int> v2 = {2};
+    // combine only accepts rvalue, so we use std::move here.
+    // Actually all we want is compiler to pass.
+    auto v3 = transformer::combine(std::move(v1), std::move(v2));
+    EXPECT_EQ(2, v3.size());
+}

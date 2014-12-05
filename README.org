@@ -44,8 +44,9 @@ second's input.
 ** Combiner
 
 Two transformers in parallel, the two's output will be combined with
-=std::tuple=. They have to have same input types, but output types could be
-different.
+=std::tuple=. They have to have same input types, but output types could be different.
+
+**Special rule: When both transformers's output are of the same =std::vector= type, they will be combined as a concatenated =std::vector= **
 
 Combiner works well with pipeline. For example, let's say you want to
 binarize (transformer C) according to the combination of two-features
