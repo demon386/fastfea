@@ -18,6 +18,7 @@
 #define FASTFEA_TRANSFORMER_H
 
 #include <vector>
+#include <queue>
 #include <string>
 #include <unordered_map>
 #include <memory>
@@ -122,7 +123,7 @@ public:
         else {
             _first->step(sample);
             if (!_second->is_finalized()) {
-                _data.emplace_back(sample);
+                _data.emplace(sample);
             }
         }
     }
@@ -132,13 +133,13 @@ public:
             _first->finalize();
         }
         if (!_second->is_finalized()) {
-            for (const auto& sample : _data) {
-                _second->step(_first->transform(sample));
+            while (!_data.empty()) {
+                _second->step(_first->transform(_data.front()));
+                _data.pop();
             }
             _second->finalize();
         }
         this->_is_finalized = true;
-        _data.clear();
     }
 
     virtual To transform(const From& sample) const {
@@ -148,7 +149,7 @@ public:
 private:
     std::shared_ptr<Transformer<From, Middle>> _first;
     std::shared_ptr<Transformer<Middle, To>> _second;
-    std::vector<From> _data;
+    std::queue<From> _data;
 };
 
 
